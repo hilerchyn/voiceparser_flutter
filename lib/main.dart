@@ -20,7 +20,7 @@ class _MyAppState extends State<MyApp> {
     return new MaterialApp(
       home: new Scaffold(
         appBar: new AppBar(
-          title: new Text('Voice Parser (QD-CN)'),
+          title: new Text('声音解析(青岛)'),
         ),
         body: new AppBody(),
       ),
@@ -58,14 +58,14 @@ class AppBodyState extends State<AppBody> {
                     Expanded(
                       child:new FlatButton(
                         onPressed: _isRecording ? null : _start,
-                        child: new Text("Start"),
+                        child: new Text("开始录音"),
                         color: Colors.green,
                       ),
                     ),
                     Expanded(
                         child:new FlatButton(
                           onPressed: _isRecording ? _stop : null,
-                          child: new Text("Stop"),
+                          child: new Text("结束录音"),
                           color: Colors.red,
                         ),
                     ),
@@ -74,14 +74,14 @@ class AppBodyState extends State<AppBody> {
               new TextField(
                 controller: _controller,
                 decoration: new InputDecoration(
-                  hintText: 'Enter a custom path',
+                  hintText: '可输入自定义文件里路径',
                 ),
               ),
-              new Text("File path of the record: ${_recording.path}"),
-              new Text("Format: ${_recording.audioOutputFormat}"),
-              new Text("Extension : ${_recording.extension}"),
+              new Text("录音文件路径: ${_recording.path}"),
+              new Text("文件格式: ${_recording.audioOutputFormat}"),
+              new Text("扩展名: ${_recording.extension}"),
               new Text(
-                  "Audio recording duration : ${_recording.duration.toString()}"),
+                  "声音时长 : ${_recording.duration.toString()}"),
               Row(
                 children: <Widget>[
                   Expanded(
@@ -90,7 +90,7 @@ class AppBodyState extends State<AppBody> {
 
                         decoration: new InputDecoration(
                           border: OutlineInputBorder(),
-                          labelText: 'Server URL',
+                          labelText: '解析服务器URL',
                         ),
                       )
                   ),
@@ -98,7 +98,7 @@ class AppBodyState extends State<AppBody> {
                     onPressed: (_isRecording || _recording.path == null) ? null : _parse,
                     padding: EdgeInsets.all(18),
                     child: new Text(
-                        "Parse",
+                        "解析",
                         style: TextStyle(fontSize: 20.0)
                     ),
                     color: Colors.green,
@@ -121,8 +121,8 @@ class AppBodyState extends State<AppBody> {
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('解析文件：${_recording.path}'),
-                Text('Would you like to approve of this message?'),
+                Text('确定解析：${_recording.path}'),
+                Text('该录音吗?'),
               ],
             ),
           ),
