@@ -6,6 +6,8 @@ import 'package:file/file.dart';
 import 'package:file/local.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert' as convert;
 
 void main() => runApp(new MyApp());
 
@@ -41,9 +43,10 @@ class AppBody extends StatefulWidget {
 class AppBodyState extends State<AppBody> {
   Recording _recording = new Recording();
   bool _isRecording = false;
+  String _response = "";
   Random random = new Random();
   TextEditingController _controller = new TextEditingController();
-  TextEditingController _controllerURL = new TextEditingController()..text='http://127.0.0.1/voiceparser/api';
+  TextEditingController _controllerURL = new TextEditingController()..text='http://192.168.31.29:5000/voiceparser/api';
 
   @override
   Widget build(BuildContext context) {
@@ -82,6 +85,10 @@ class AppBodyState extends State<AppBody> {
               new Text("扩展名: ${_recording.extension}"),
               new Text(
                   "声音时长 : ${_recording.duration.toString()}"),
+              new Text(
+                  "应答信息： $_response",
+                  style: TextStyle(color: Colors.red),
+              ),
               Row(
                 children: <Widget>[
                   Expanded(
@@ -122,7 +129,7 @@ class AppBodyState extends State<AppBody> {
             child: ListBody(
               children: <Widget>[
                 Text('确定解析：${_recording.path}'),
-                Text('该录音吗?'),
+                Text('该录音吗?${_controllerURL.text}'),
               ],
             ),
           ),
@@ -137,7 +144,45 @@ class AppBodyState extends State<AppBody> {
             FlatButton(
               child: Text('确定'),
               color: Colors.red,
-              onPressed: () {
+              onPressed: () async {
+
+
+                var url = _controllerURL.text; //'https://www.googleapis.com/books/v1/volumes?q={http}';
+
+
+                final postUri = Uri.parse(url);
+                http.MultipartRequest request = http.MultipartRequest('POST', postUri);
+
+                final filename = _controller.text;
+
+                http.MultipartFile multipartFile = http.MultipartFile(
+                    'voice_file',
+                    io.File(filename).readAsBytes().asStream(),
+                    io.File(filename).lengthSync(),
+                    filename: filename.split("/").last
+                ); //returns a Future<MultipartFile>
+
+                request.files.add(multipartFile);
+
+                http.StreamedResponse streamedResponse = await request.send();
+
+
+                // Await the http get response, then decode the json-formatted response.
+                //var response = await http.get(url);
+                if (streamedResponse.statusCode == 200) {
+                  final response = await streamedResponse.stream.bytesToString();
+                  var jsonResponse = convert.jsonDecode(response);
+
+                  setState(() {
+                    _response = jsonResponse['message'];
+                  });
+
+                  //var itemCount = jsonResponse['totalItems'];
+                  //print('Number of books about http: $itemCount.');
+                } else {
+                  print('Request failed with status: ${streamedResponse.statusCode}.');
+                }
+
                 Navigator.of(context).pop();
               },
             ),
